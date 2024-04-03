@@ -1,24 +1,21 @@
-const express = require('express');
-const bodyParser = require('body-parser');
+const express = require("express");
+const bodyParser = require("body-parser");
 
 const app = express();
 
-
 app.use(bodyParser.json());
-
 
 const registeredCompanies = {};
 
-app.post('/test/register', (req, res) => {
+app.post("/test/register", (req, res) => {
   const { companyName, ownerName, rollNo, ownerEmail, accessCode } = req.body;
 
-  if (accessCode !== 'bntKpm') {
-    return res.status(403).json({ error: 'Invalid access code' });
+  if (accessCode !== "bntKpm") {
+    return res.status(403).json({ error: "Invalid access code" });
   }
 
-
   if (registeredCompanies[rollNo]) {
-    return res.status(400).json({ error: 'Company already registered' });
+    return res.status(400).json({ error: "Company already registered" });
   }
 
   const clientID = generateUUID();
@@ -43,38 +40,48 @@ app.post('/test/register', (req, res) => {
   });
 });
 
-app.post('/test/auth', (req, res) => {
-
-  const { companyName, clientID, clientSecret, ownerName, ownerEmail, rollno } = req.body;
+app.post("/test/auth", (req, res) => {
+  const { companyName, clientID, clientSecret, ownerName, ownerEmail, rollno } =
+    req.body;
 
   if (!registeredCompanies[rollno]) {
-    return res.status(404).json({ error: 'Company not registered' });
+    return res.status(404).json({ error: "Company not registered" });
   }
 
   const registeredCompany = registeredCompanies[rollno];
-  if (registeredCompany.companyName !== companyName || registeredCompany.clientID !== clientID || registeredCompany.clientSecret !== clientSecret) {
-    return res.status(401).json({ error: 'Unauthorized' });
+  if (
+    registeredCompany.companyName !== companyName ||
+    registeredCompany.clientID !== clientID ||
+    registeredCompany.clientSecret !== clientSecret
+  ) {
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
   const authToken = generateRandomString();
+  const response = {
+    token_type: "Bearer",
+    access_token: authToken,
+    expires_in: Date.now() + 60 * 60 * 1000, // Token expires in 1 hour
+  };
 
-  res.json({
-    authToken,
-  });
+  res.status(200).json(response);
 });
 
 function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = Math.random() * 16 | 0,
-        v = c == 'x' ? r : (r & 0x3 | 0x8);
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    var r = (Math.random() * 16) | 0,
+      v = c == "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
 
 function generateRandomString() {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  return (
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
 }
 
 app.listen(3000, () => {
-  console.log('Server is running on port 3000');
+  console.log("Server is running on port 3000");
 });
