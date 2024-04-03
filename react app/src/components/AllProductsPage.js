@@ -7,11 +7,7 @@ const AllProductsPage = () => {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    // Fetch all products from backend API
-    // Example: fetch('backend-url/categories/all/products')
-    //   .then(response => response.json())
-    //   .then(data => setProducts(data));
-    // Replace 'backend-url' with your backend server URL
+    
   }, []);
 
   return (
